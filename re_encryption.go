@@ -14,14 +14,13 @@ type KeyPair struct {
 	Private *big.Int
 }
 
-type CiphertextPair struct {
-	C0 Point
-	C1 Point
-}
 
-type Point struct{
-	X *big.Int
-	Y *big.Int
+
+type Tuple struct{
+	x0 *big.Int
+	x1 *big.Int
+	x2 *big.Int
+	x3 *big.Int
 }
 
 
@@ -51,7 +50,7 @@ func generateKeyPair() KeyPair {
 }
 
 // Encrypt a message m with public key and a random encryption factor
-func encrypt(publicKey KeyPair, message *big.Int, k1 *big.Int) (CiphertextPair) {
+func encrypt(publicKey KeyPair, message *big.Int, k1 *big.Int) (Tuple) {
 	
 	// Encryption using k0
 	c00  := new(big.Int).Exp(publicKey.Public,k0,P)
@@ -68,18 +67,18 @@ func encrypt(publicKey KeyPair, message *big.Int, k1 *big.Int) (CiphertextPair) 
 
 
 	
-	return CiphertextPair{C0: Point{X:c00, Y:c01 }, C1: Point{X:c10 ,Y:c11}}
+	return Tuple{x0:c00,x1: c01, x2:c10, x3:c11}
 				
 } 
 
 
-func decrypt(decryptMessage CiphertextPair ,  private *big.Int) (bool, *big.Int) {
+func decrypt(result Tuple ,  private *big.Int) (bool, *big.Int) {
 	// Random encryption factor k
-	m0:= new(big.Int).Exp(decryptMessage.C0.Y,private,P)
-	m0.Div(decryptMessage.C0.X, m0).Mod(m0, P)
+	m0:= new(big.Int).Exp(result.x1,private,P)
+	m0.Div(result.x0 ,m0).Mod(m0, P)
 
-	m1:= new(big.Int).Exp(decryptMessage.C1.Y,private,P)
-	m1.Div(decryptMessage.C0.X, m1).Mod(m1, P)
+	m1:= new(big.Int).Exp(result.x3,private,P)
+	m1.Div(result.x2, m1).Mod(m1, P)
 
 	if m1.Cmp(big.NewInt(1)) == 0 {
 		result := m0
@@ -91,19 +90,19 @@ func decrypt(decryptMessage CiphertextPair ,  private *big.Int) (bool, *big.Int)
 }
 
 
-func reeecrypt(decryptMessage CiphertextPair , k2 *big.Int, k3 *big.Int ) (CiphertextPair) {
+func reeecrypt(result Tuple , k2 *big.Int, k3 *big.Int ) (Tuple) {
 	
 
-	alpha00:= new(big.Int).Exp(decryptMessage.C1.X,k2, P)
-	alpha00.Mul(alpha00, decryptMessage.C0.X).Mod(alpha00, P)
+	alpha00:= new(big.Int).Exp(result.x2,k2, P)
+	alpha00.Mul(alpha00, result.x0).Mod(alpha00, P)
 	
-	beta00:= new(big.Int).Exp(decryptMessage.C1.Y,k2, P)
-	beta00.Mul(beta00, decryptMessage.C1.X).Mod(beta00, P)
+	beta00:= new(big.Int).Exp(result.x3,k2, P)
+	beta00.Mul(beta00, result.x1).Mod(beta00, P)
 
-	alph01:= new(big.Int).Exp(decryptMessage.C1.X,k3, P)
-	beta01:= new(big.Int).Exp(decryptMessage.C1.Y,k3, P)
+	alph01:= new(big.Int).Exp(result.x2,k3, P)
+	beta01:= new(big.Int).Exp(result.x3,k3, P)
 
-	return CiphertextPair{C0: Point{X:alpha00, Y:beta00 }, C1: Point{X:alph01, Y:beta01 }}
+	return Tuple{x0:alpha00, x1:beta00 ,x2 :alph01, x3:beta01 }
 	
 }
 
@@ -147,6 +146,9 @@ func main() {
 	
 	// fmt.Printf("%t", true)
 	// zkm_runtime.Commit[Data](output)
-	fmt.Println("test1", test1)
+	fmt.Println("test1.x0", test1.x0)
+	fmt.Println("test1.x1", test1.x1)
+	fmt.Println("test1.x2", test1.x2)
+	fmt.Println("test1.x3", test1.x3)
 
 }
