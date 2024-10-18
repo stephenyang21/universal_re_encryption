@@ -147,12 +147,6 @@ func main() {
 	
 	// fmt.Printf("%t", true)
 	// zkm_runtime.Commit[Data](output)
+	fmt.Printf("test1", test1)
 
-	fmt.Println("test1:",test1)
-
-	fmt.Println("k0:",k0)
-	fmt.Println("k1:",k1)
-	fmt.Println("k2:",k2)
-	fmt.Println("k3:",k3)
-    
 }
